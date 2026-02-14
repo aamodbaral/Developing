@@ -13,7 +13,7 @@ export default function Home() {
             <Link href="/login?role=admin" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition">
               Admin Portal
             </Link>
-            <Link href="/login" className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-md">
+            <Link href="/login?role=voter" className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-md">
               Voter Login
             </Link>
           </div>
