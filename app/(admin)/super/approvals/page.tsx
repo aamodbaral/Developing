@@ -42,7 +42,7 @@ export default function ApprovalsPage() {
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
-            <Link href="/admin/dashboard" className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold mb-2 transition">
+            <Link href="/super/dashboard" className="flex items-center gap-2 text-slate-500 hover:text-blue-600 font-bold mb-2 transition">
               <ArrowLeft size={18} /> Back to Dashboard
             </Link>
             <h1 className="text-3xl font-black text-slate-900">Candidate Approvals</h1>

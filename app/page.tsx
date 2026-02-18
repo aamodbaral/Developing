@@ -10,10 +10,17 @@ export default function Home() {
             <i className="fa-solid fa-check-double"></i> SecureVote.io
           </h1>
           <div className="space-x-4 flex items-center">
-            <Link href="/login?role=admin" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition">
+            {/* UPDATED PATHS */}
+            <Link 
+              href="/auth/login?role=admin" 
+              className="text-sm font-medium text-gray-600 hover:text-blue-600 transition"
+            >
               Admin Portal
             </Link>
-            <Link href="/login?role=voter" className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-md">
+            <Link 
+              href="/auth/login?role=voter" 
+              className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition shadow-md"
+            >
               Voter Login
             </Link>
           </div>
@@ -27,7 +34,7 @@ export default function Home() {
           Welcome to the digital election portal. Follow the guide below to cast your ballot securely in under 2 minutes.
         </p>
         <div className="flex justify-center gap-4">
-             <Link href="/login" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transition">
+             <Link href="/auth/login?role=voter" className="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transition">
                Start Voting
              </Link>
              <a href="#guide" className="bg-gray-100 text-gray-700 px-8 py-3 rounded-lg font-bold hover:bg-gray-200 transition">
@@ -39,8 +46,10 @@ export default function Home() {
       {/* 3. Guide Section */}
       <section id="guide" className="max-w-6xl mx-auto py-20 px-4">
         <h3 className="text-3xl font-bold text-center text-gray-800 mb-12">How It Works</h3>
+        
+        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
             {/* Step 1 */}
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center hover:border-blue-300 transition group">
                 <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold group-hover:bg-blue-600 group-hover:text-white transition">1</div>
@@ -64,7 +73,6 @@ export default function Home() {
                 <h4 className="text-xl font-bold mb-2 text-gray-800">Secure Submission</h4>
                 <p className="text-gray-500 text-sm leading-relaxed">Once you click 'Submit', your vote is recorded. You cannot vote twice in the same election.</p>
             </div>
-
         </div>
       </section>
 
