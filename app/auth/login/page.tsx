@@ -16,8 +16,6 @@ function LoginContent() {
   const [formData, setFormData] = useState({ identifier: '', password: '' });
 
   const registerPath = role === 'admin' ? '/auth/register/admin' : '/auth/register/voter';
-
-  // UPDATED STYLE: Increased placeholder contrast and added focus rings
   const inputStyle = "w-full pl-10 pr-10 py-3 border-b-2 border-gray-100 focus:border-blue-600 outline-none transition-all text-sm font-semibold bg-white text-gray-900 placeholder:text-gray-500 placeholder:opacity-100";
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,10 +39,36 @@ function LoginContent() {
       const data = await response.json();
 
       if (response.ok) {
-        const isSuperAdmin = role === 'admin' && formData.identifier === 'superadmin' && formData.password === 'superadmin123';
-        localStorage.setItem('token', data.token || 'session-active'); 
+        // 1. Store session data
+        localStorage.setItem('token', data.token);
+        
+        // 2. Logic to determine redirect path
+        const isSuperAdmin = role === 'admin' && formData.identifier === 'superadmin';
         localStorage.setItem('userRole', isSuperAdmin ? 'superadmin' : role);
-        router.push(isSuperAdmin ? '/superadmin/dashboard' : role === 'admin' ? '/admin/dashboard' : '/voter-dashboard');
+
+        let redirectPath = '';
+        if (isSuperAdmin) {
+          redirectPath = '/super/dashboard';
+        } else if (role === 'admin') {
+          redirectPath = '/super/dashboard';
+        } else {
+          // FIX: Use data.user.id (from your backend) or studentId if available
+          // If you want the URL to be /voter-dashboard/KCE080BCT025, 
+          // the backend must return that string in the user object.
+          const userId = data.user?.studentId || data.user?.id || '';
+          
+          if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
+
+          // FIX: Changed 'user.id' to 'userId' variable defined above
+          redirectPath = userId
+            ? `/voter/voter-dashboard/${userId}`
+            : '/voter/voter-dashboard';
+        }
+
+        console.log("Login Success. Redirecting to:", redirectPath);
+        router.push(redirectPath);
       } else {
         alert(data.message || "Login failed");
       }
@@ -57,7 +81,6 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-white p-6">
-      
       <div className="w-full max-w-xs flex flex-col items-center">
         <header className="mb-10 text-center">
           <GraduationCap size={40} className="text-blue-600 mx-auto mb-4" />
@@ -139,9 +162,6 @@ function LoginContent() {
           </div>
           
           <div className="pt-6 border-t border-gray-50 flex flex-col gap-3">
-            <Link href="/forgot-password" size="sm" className="text-[9px] font-bold text-gray-300 uppercase tracking-widest hover:text-gray-500">
-              Forgot Password?
-            </Link>
             <Link href="/" className="text-[9px] font-bold text-gray-300 uppercase tracking-widest flex items-center justify-center gap-2 hover:text-gray-500">
               <ArrowLeft size={10} /> Back to Landing
             </Link>
@@ -154,7 +174,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
       <LoginContent />
     </Suspense>
   );

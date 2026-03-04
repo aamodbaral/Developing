@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { GraduationCap, Mail, Lock, User, IdCard, ArrowLeft, ShieldCheck } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function VoterRegisterPage() {
   const router = useRouter();
@@ -12,12 +12,11 @@ export default function VoterRegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    symbolNo: '',
     password: '',
     otp: ''
   });
 
-  // FIXED: Higher contrast placeholder for visibility
+  const baseUrl = "http://localhost:5000";
   const inputStyle = "w-full pl-10 pr-10 py-3 border-b-2 border-gray-100 focus:border-blue-600 outline-none transition-all text-sm font-semibold bg-white text-gray-900 placeholder:text-gray-500 placeholder:opacity-100";
 
   const handleSendOTP = async (e: React.FormEvent) => {
@@ -25,14 +24,11 @@ export default function VoterRegisterPage() {
     setLoading(true);
     
     try {
-      const res = await fetch("http://localhost:5000/otp/send-otp", {
+      const res = await fetch(`${baseUrl}/otp/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Change this:
         body: JSON.stringify({ 
-          name: formData.name, // Changed from username to name
           email: formData.email, 
-          password: formData.password 
         }),
       });
 
@@ -40,7 +36,7 @@ export default function VoterRegisterPage() {
         setStep(2);
       } else {
         const data = await res.json();
-        alert(data.message || "Registration failed");
+        alert(data.message || "Could not send OTP");
       }
     } catch (err) {
       alert("Connection error to server");
@@ -54,27 +50,37 @@ export default function VoterRegisterPage() {
     setLoading(true);
     
     try {
-      const res = await fetch("http://localhost:5000/users/register", {
+      const res = await fetch(`${baseUrl}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
+          name: formData.name,
           email: formData.email, 
+          password: formData.password,
           otp: formData.otp 
         }),
       });
+
+      const data = await res.json();
 
       if (res.ok) {
         alert("Registration successful!");
         router.push('/auth/login?role=voter');
       } else {
-        const data = await res.json();
-        alert(data.message || "Invalid OTP");
+        alert(data.message || "Invalid OTP or Registration Failed");
       }
     } catch (err) {
       alert("Verification failed.");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Explicitly handle moving back to step 1
+  const handleChangeDetails = (e: React.MouseEvent) => {
+    e.preventDefault(); // Stop any form submission
+    setStep(1);
+    setFormData(prev => ({ ...prev, otp: '' })); // Clear OTP only
   };
 
   return (
@@ -96,6 +102,7 @@ export default function VoterRegisterPage() {
               <input 
                 type="text" required placeholder="Full Name"
                 className={inputStyle}
+                value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
               />
             </div>
@@ -105,16 +112,8 @@ export default function VoterRegisterPage() {
               <input 
                 type="email" required placeholder="College Email"
                 className={inputStyle}
+                value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
-            </div>
-
-            <div className="relative group">
-              <IdCard size={18} className="absolute left-0 bottom-3 text-gray-400 group-focus-within:text-blue-600 z-10" />
-              <input 
-                type="text" required placeholder="Symbol Number"
-                className={inputStyle}
-                onChange={(e) => setFormData({...formData, symbolNo: e.target.value})}
               />
             </div>
 
@@ -123,13 +122,15 @@ export default function VoterRegisterPage() {
               <input 
                 type="password" required placeholder="Create Password"
                 className={inputStyle}
+                value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
               />
             </div>
 
             <button 
-              type="submit" disabled={loading}
-              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-blue-100"
+              type="submit" 
+              disabled={loading}
+              className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 shadow-lg shadow-blue-100 disabled:opacity-50"
             >
               {loading ? 'Sending OTP...' : 'Get Verification Code'}
             </button>
@@ -142,24 +143,28 @@ export default function VoterRegisterPage() {
             <div className="relative group">
               <ShieldCheck size={18} className="absolute left-0 bottom-3 text-gray-400 group-focus-within:text-blue-600 z-10" />
               <input 
-                type="text" required placeholder="OTP Code"
+                type="text" 
+                required 
+                placeholder="ENTER CODE"
                 maxLength={6}
-                className={`${inputStyle} text-center tracking-[0.5em]`}
+                className={`${inputStyle} text-center ${formData.otp ? 'tracking-[0.5em] font-bold text-lg' : 'tracking-normal'}`}
+                value={formData.otp}
                 onChange={(e) => setFormData({...formData, otp: e.target.value})}
               />
             </div>
 
             <button 
-              type="submit" disabled={loading}
-              className="w-full py-4 bg-green-600 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95"
+              type="submit" 
+              disabled={loading}
+              className="w-full py-4 bg-green-600 text-white rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all active:scale-95 disabled:opacity-50"
             >
               {loading ? 'Verifying...' : 'Complete Registration'}
             </button>
             
             <button 
               type="button" 
-              onClick={() => setStep(1)}
-              className="text-[9px] font-bold text-gray-400 uppercase tracking-widest hover:text-blue-600 transition-colors"
+              onClick={handleChangeDetails}
+              className="text-[9px] font-bold text-gray-400 uppercase tracking-widest hover:text-blue-600 transition-colors block mx-auto mt-4"
             >
               Change Details
             </button>
